@@ -4,17 +4,17 @@ from flask_jwt_extended import create_access_token, create_refresh_token
 from models.user import UserModel
 
 # class global paraser filter
-	_user_parser = reqparse.RequestParser()
-	# lets filter only expected arguments
-	_user_parser.add_argument('username', 
-		type=str, 
-		required=True, 
-		help="This field cannot be left blank!")
+_user_parser = reqparse.RequestParser()
+# lets filter only expected arguments
+_user_parser.add_argument('username', 
+	type=str, 
+	required=True, 
+	help="This field cannot be left blank!")
 
-	_user_parser.add_argument('password', 
-		type=str, 
-		required=True, 
-		help="This field cannot be left blank!")
+_user_parser.add_argument('password', 
+	type=str, 
+	required=True, 
+	help="This field cannot be left blank!")
 
 class UserRegister(Resource):
 
