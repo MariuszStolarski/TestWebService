@@ -1,5 +1,11 @@
 from flask_restful import Resource, reqparse
-from flask_jwt_extended import jwt_required, get_jwt_claims, jwt_optional, get_jwt_identity
+from flask_jwt_extended import (
+	jwt_required, 
+	get_jwt_claims, 
+	jwt_optional, 
+	get_jwt_identity,
+	fresh_jwt_required
+	)
 
 from models.item import ItemModel
 
@@ -27,8 +33,7 @@ class Item(Resource):
 
 		return {'message' : 'Item not found'}, 404
 
-	
-
+	@fresh_jwt_required # only fresh access token will be allowed
 	def post(self, name):
 		
 		item = ItemModel.find_by_name(name)
