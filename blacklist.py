@@ -1,1 +1,1 @@
-BLACKLIST = {2, 3} # these users will not have accessś
+BLACKLIST = set() # these users will not have accessś
