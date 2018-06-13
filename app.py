@@ -1,17 +1,20 @@
 import os
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 
 from resources.user import UserRegister, User, UserLogin, TokenRefresh
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
+from blacklist import BLACKLIST
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL','sqlite:///data.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 app.config['PROPAGATE_EXCEPTIONS'] = True
+app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 app.secret_key = 'mySecretKeyHere' # or use: app.config['JWT_SECRET_KEY']
 api = Api(app)
 
@@ -32,6 +35,11 @@ def expired_token_callabak():
 
 # some configurations:
 
+@jwt.token_in_blacklist_loader
+def check_if_token_in_blacklist(decrypted_token):
+	print('do checking .... ')
+	return decrypted_token['identity'] in BLACKLIST # checks if id is on the balcklist
+
 @jwt.invalid_token_loader # invalid token was provided
 def invalid_token_callaback(error):
 	return jsonify ({
@@ -47,14 +55,14 @@ def missing_token_callabak(error):
 		}), 410
 
 @jwt.needs_fresh_token_loader # token is correct but it is not the fresh one
-def token_not_fresh_callaback(error):
+def token_not_fresh_callaback():
 	return jsonify ({
 		'description' : 'The token is not fresh.',
 		'error' : 'fres_token_required'
 		}), 401
 
 @jwt.revoked_token_loader # token is no longer valid (e.g. when user did log out)
-def revoked_token_callaback(error):
+def revoked_token_callaback():
 	return jsonify ({
 		'description' : 'The token has been revoked.',
 		'error' : 'token_revoked'
