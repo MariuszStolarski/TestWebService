@@ -23,6 +23,43 @@ def add_claims_to_jwt(identity): # identity is what we pass to the create_access
 		return {'is_admin' : True}
 	return {'is_admin' : False}
 
+@jwt.expired_token_loader
+def expired_token_callabak():
+	return jsonify({
+		'description' : 'The token has expired',
+		'error' : 'token_expired'
+		}), 401
+
+# some configurations:
+
+@jwt.invalid_token_loader # invalid token was provided
+def invalid_token_callaback(error):
+	return jsonify ({
+		'description' : 'Signature verification failed.',
+		'error' : 'invalid_token'
+		}), 401
+
+@jwt.unauthorized_loader # no token were sent
+def missing_token_callabak(error):
+	return jsonify ({
+		'description' : 'Request does not contain an access token.',
+		'error' : 'authorization_required'
+		}), 410
+
+@jwt.needs_fresh_token_loader # token is correct but it is not the fresh one
+def token_not_fresh_callaback(error):
+	return jsonify ({
+		'description' : 'The token is not fresh.',
+		'error' : 'fres_token_required'
+		}), 401
+
+@jwt.revoked_token_loader # token is no longer valid (e.g. when user did log out)
+def revoked_token_callaback(error):
+	return jsonify ({
+		'description' : 'The token has been revoked.',
+		'error' : 'token_revoked'
+		}), 401
+
 # other endpoints avalilable
 api.add_resource(Item, '/item/<string:name>')
 api.add_resource(Store, '/store/<string:name>')
