@@ -17,6 +17,12 @@ api = Api(app)
 
 jwt = JWTManager(app)
 
+@jwt.user_claims_loader
+def add_claims_to_jwt(identity): # identity is what we pass to the create_access_token() in this case user.id
+	if identity == 1: # TODO: Instead of card coding you should read from a coding file or database
+		return {'is_admin' : True}
+	return {'is_admin' : False}
+
 # other endpoints avalilable
 api.add_resource(Item, '/item/<string:name>')
 api.add_resource(Store, '/store/<string:name>')
